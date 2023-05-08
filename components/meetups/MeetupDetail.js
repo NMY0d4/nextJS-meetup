@@ -1,6 +1,7 @@
 import styles from './MeetupDetail.module.scss';
 
 function MeetupDetail({ meetup }) {
+  console.log(meetup);
   const { image, title, address, description } = meetup[0];
 
   return (

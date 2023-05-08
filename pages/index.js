@@ -2,10 +2,15 @@ import React from 'react';
 import MeetupList from '../components/meetups/MeetupList';
 import { DUMMY_MEETUPS } from '../data';
 
-const meetupsData = DUMMY_MEETUPS;
+function HomePage({ meetups }) {
+  return <MeetupList meetups={meetups} />;
+}
 
-function HomePage() {
-  return <MeetupList meetups={meetupsData} />;
+export async function getStaticProps() {
+  return {
+    props: { meetups: DUMMY_MEETUPS },
+    revalidate: 10,
+  };
 }
 
 export default HomePage;
