@@ -1,37 +1,39 @@
-import { DUMMY_MEETUPS } from '../../data';
 import MeetupDetail from '../../components/meetups/MeetupDetail';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '../../utils/dbConnect';
 
 function MeetupDetails({ meetupData }) {
-  
   return <MeetupDetail meetupData={meetupData} />;
 }
 
 export async function getStaticPaths() {
+  const { client, db } = await connectToDatabase();
+  const meetupsCollection = db.collection('meetups');
+  const meetups = await meetupsCollection.distinct('_id');
+  client.close();
+
+  const paths = meetups.map((meetup) => ({
+    params: { meetupId: meetup.toString() },
+  }));
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: 'm1',
-        },
-      },
-      {
-        params: {
-          meetupId: 'm2',
-        },
-      },
-    ],
+    paths,
   };
 }
 
 export async function getStaticProps(context) {
-  // fetch data for a single meetup
   const { meetupId } = context.params;
-  console.log(meetupId);
+  const { client, db } = await connectToDatabase();
+  const meetupsCollection = db.collection('meetups');
+  const selectedMeetup = await meetupsCollection.findOne({
+    _id: new ObjectId(meetupId),
+  });
+  client.close();
 
   return {
     props: {
-      meetupData: { ...DUMMY_MEETUPS[0], id: meetupId },
+      meetupData: { ...selectedMeetup, _id: meetupId },
     },
   };
 }
